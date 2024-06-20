@@ -1,0 +1,108 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:get/get.dart';
+
+class FetchedDataCard extends StatelessWidget {
+  final Map<String, dynamic> data;
+  final String title;
+  const FetchedDataCard({Key? key, required this.data, required this.title}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    List<Widget> textFields = [];
+    List<Widget> imageFields = [];
+
+    data.forEach((key, value) {
+      if (value != null && value is String && value.isNotEmpty) {
+        if (value.startsWith('http')) {
+          imageFields.add(
+            Container(
+              child: Column(
+                children: [
+                  CachedNetworkImage(
+                    placeholder: (context, url) => Container(height: 50, width: 50, child: CircularProgressIndicator()),
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                    width: 100,
+                    height: 100,
+                    imageUrl: value,
+                  ),
+                  Text("Image: $key")
+                ],
+              ),
+            ),
+          );
+        } else {
+          if (key != 'uid' && key != 'Employee Name') {
+            textFields.add(Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0), // Add horizontal padding for spacing
+              child: Text('$key: $value'),
+            ));
+          }
+        }
+      }
+    });
+
+    return Card(
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(data['Employee Name'], style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                SizedBox(width: 100),
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(children: textFields),
+                  ),
+                ),
+              ],
+            ),
+            Divider(),
+            if (imageFields.isNotEmpty) ...[
+              SizedBox(height: 20),
+              GridView.count(
+                shrinkWrap: true,
+                crossAxisCount: 4,
+                crossAxisSpacing: 5,
+                mainAxisSpacing: 2,
+                children: imageFields,
+              ),
+              Divider(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(onPressed: () { _verifyOHS(data); }, child: Text("Verify OHS")),
+                  ElevatedButton(onPressed: () { _rejectOHS(data); }, child: Text("Reject OHS")),
+                ],
+              )
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _verifyOHS(Map<String, dynamic> data) async {
+    String uid = data['uid'];
+    try {
+      await FirebaseFirestore.instance.collection('users').doc(uid).update({'verified': true});
+      Get.snackbar("Done", "OHS for ${data['Employee Name']} is verified and employee is allowed to go on field");
+    } catch (e) {
+      print("Error verifying OHS: $e");
+    }
+  }
+  Future<void> _rejectOHS(Map<String, dynamic> data) async {
+    String uid = data['uid'];
+    try {
+      await FirebaseFirestore.instance.collection('users').doc(uid).update({'verified': false});
+      Get.snackbar("Oops!", "OHS for ${data['Employee Name']} is Rejected and employee Needs to upload images again");
+    } catch (e) {
+      print("Error rejecting OHS: $e");
+    }
+  }
+}
