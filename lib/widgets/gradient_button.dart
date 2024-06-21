@@ -11,6 +11,9 @@ class GradientButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
+      splashFactory: InkSplash.splashFactory,
+      overlayColor: WidgetStateColor.transparent,
+      splashColor: Color(0xFF5038ED),
       child: Container(
         width: 125,
         height: 50,
