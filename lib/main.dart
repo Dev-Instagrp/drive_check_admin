@@ -1,4 +1,4 @@
-import 'package:drive_check_admin/Authentication/welcome.dart';
+import 'package:drive_check_admin/screens/welcome/welcome.dart';
 import 'package:drive_check_admin/firebase_options.dart';
 import 'package:drive_check_admin/screens/homescreen.dart';
 import 'package:firebase_core/firebase_core.dart';
