@@ -46,6 +46,9 @@ dependencies:
   blurrycontainer: ^2.1.0
   animated_icon: ^0.0.9
   flutter_social_button: ^1.1.4+1
+  url_launcher: ^6.1.2
+  file_picker: ^8.0.5
+  excel: ^4.0.3
 
 dev_dependencies:
   flutter_test:

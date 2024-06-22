@@ -17,7 +17,7 @@ class Homescreen extends StatefulWidget {
 
 class _HomescreenState extends State<Homescreen> {
 
-  Widget _selectedScreen = TaskAllocation();
+  Widget _selectedScreen = Dashboard();
   screenSelector(item){
     switch(item.route){
       case Dashboard.routeName:
@@ -49,6 +49,8 @@ class _HomescreenState extends State<Homescreen> {
     return AdminScaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        elevation: 0,
+        scrolledUnderElevation: 0,
         title: Text('DriveCheck Admin panel'),
         backgroundColor: Colors.transparent,
         centerTitle: true,
@@ -84,7 +86,7 @@ class _HomescreenState extends State<Homescreen> {
           ),
           AdminMenuItem(
             title: 'Task Allocation',
-            icon: Icons.settings,
+            icon: Icons.edit_document,
             route: TaskAllocation.routeName
           ),
         ],
