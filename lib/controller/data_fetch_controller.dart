@@ -9,8 +9,42 @@ class OHSCheckController extends GetxController {
   var fetchedData = <String, dynamic>{}.obs;
   var siteId = ''.obs;
   var siteDate = ''.obs;
+  var state = 'preSite'.obs;
+  var rejectedState = 'preSite'.obs;
 
   Future<void> fetchData(String siteID) async {
+
+    switch(selectedType.value){
+      case 'PreSiteData':
+        state.value = 'onSite';
+
+      case 'OnSiteData':
+        state.value = 'postSite';
+
+      case 'PostSiteData':
+        state.value = 'completed';
+
+      default:
+        state.value = 'preSite';
+    }
+    if (selectedEmployee.value == 'Select Employee' || selectedType.value == 'Activity Type') {
+      showSnackbar('Error', 'Please select both employee and type');
+      return;
+    }
+
+    switch(selectedType.value){
+      case 'PreSiteData':
+        rejectedState.value = 'preSite';
+
+      case 'OnSiteData':
+        rejectedState.value = 'onSite';
+
+      case 'PostSiteData':
+        rejectedState.value = 'postSite';
+
+      default:
+        rejectedState.value = 'preSite';
+    }
     if (selectedEmployee.value == 'Select Employee' || selectedType.value == 'Activity Type') {
       showSnackbar('Error', 'Please select both employee and type');
       return;

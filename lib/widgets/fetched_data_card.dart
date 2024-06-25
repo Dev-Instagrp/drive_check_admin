@@ -93,7 +93,20 @@ class FetchedDataCard extends StatelessWidget {
   Future<void> _verifyOHS(Map<String, dynamic> data) async {
     try {
       String siteDate = '${controller.selectedDate.value.day.toString().padLeft(2, '0')}-${controller.selectedDate.value.month.toString()}-${controller.selectedDate.value.year}';
-      await FirebaseFirestore.instance.collection('siteAllocation').doc('${controller.siteId.value}($siteDate)').update({'verified': true, 'state': 'OnSite'});
+      await FirebaseFirestore.instance.collection('siteAllocation').doc('${controller.siteId.value}($siteDate)').update({'verified': true, 'state': 'OnSite'}).then((_) async{
+        var querySnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .where('Employee Name', isEqualTo: data['Employee Name'])
+            .limit(1)
+            .get();
+
+        if (querySnapshot.size > 0) {
+          var doc = querySnapshot.docs[0];
+          await doc.reference.update({'state': controller.state.value});
+        } else {
+          print('No matching document found.');
+        }
+      });
       Get.snackbar("Done", "OHS for employee is verified and employee is allowed to go on field");
     } catch (e) {
       print("Error verifying OHS: $e");
@@ -103,7 +116,20 @@ class FetchedDataCard extends StatelessWidget {
   Future<void> _rejectOHS(Map<String, dynamic> data) async {
     try {
       String siteDate = '${controller.selectedDate.value.day.toString().padLeft(2, '0')}-${controller.selectedDate.value.month.toString()}-${controller.selectedDate.value.year}';
-      await FirebaseFirestore.instance.collection('siteAllocation').doc('${controller.siteId.value}($siteDate)').update({'verified': false, 'state': 'PreSite'});
+      await FirebaseFirestore.instance.collection('siteAllocation').doc('${controller.siteId.value}($siteDate)').update({'verified': false, 'state': 'PreSite'}).then((_) async{
+        var querySnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .where('Employee Name', isEqualTo: data['Employee Name'])
+            .limit(1)
+            .get();
+
+        if (querySnapshot.size > 0) {
+          var doc = querySnapshot.docs[0];
+          await doc.reference.update({'state': controller.rejectedState.value});
+        } else {
+          print('No matching document found.');
+        }
+      });
       Get.snackbar("Oops!", "OHS for ${data['Employee Name']} is Rejected and employee needs to upload images again");
     } catch (e) {
       print("Error rejecting OHS: $e");
