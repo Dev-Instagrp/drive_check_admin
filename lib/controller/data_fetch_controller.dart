@@ -7,39 +7,63 @@ class OHSCheckController extends GetxController {
   var selectedType = 'Activity Type'.obs;
   var selectedDate = DateTime.now().obs;
   var fetchedData = <String, dynamic>{}.obs;
+  var siteId = ''.obs;
+  var siteDate = ''.obs;
+  var state = 'preSite'.obs;
+  var rejectedState = 'preSite'.obs;
 
-  Future<void> fetchData() async {
+  Future<void> fetchData(String siteID) async {
+
+    switch(selectedType.value){
+      case 'PreSiteData':
+        state.value = 'onSite';
+
+      case 'OnSiteData':
+        state.value = 'postSite';
+
+      case 'PostSiteData':
+        state.value = 'completed';
+
+      default:
+        state.value = 'preSite';
+    }
+    if (selectedEmployee.value == 'Select Employee' || selectedType.value == 'Activity Type') {
+      showSnackbar('Error', 'Please select both employee and type');
+      return;
+    }
+
+    switch(selectedType.value){
+      case 'PreSiteData':
+        rejectedState.value = 'preSite';
+
+      case 'OnSiteData':
+        rejectedState.value = 'onSite';
+
+      case 'PostSiteData':
+        rejectedState.value = 'postSite';
+
+      default:
+        rejectedState.value = 'preSite';
+    }
     if (selectedEmployee.value == 'Select Employee' || selectedType.value == 'Activity Type') {
       showSnackbar('Error', 'Please select both employee and type');
       return;
     }
 
     String formattedDate = '${selectedDate.value.year}-${selectedDate.value.month.toString().padLeft(2, '0')}-${selectedDate.value.day.toString().padLeft(2, '0')}';
+    siteDate.value = '${selectedDate.value.day}-${selectedDate.value.month.toString()}-${selectedDate.value.year}';
 
     try {
-      QuerySnapshot userSnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .where('Employee Name', isEqualTo: selectedEmployee.value)
-          .limit(1)
-          .get();
-
-      if (userSnapshot.docs.isEmpty) {
-        showSnackbar('Error', 'No user found');
-        return;
-      }
-
-      String userId = userSnapshot.docs.first.id;
-
       DocumentSnapshot dataSnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
+          .collection('siteAllocation')
+          .doc(siteID+"(${siteDate})")
           .collection(selectedType.value)
           .doc(formattedDate)
           .get();
 
       if (dataSnapshot.exists) {
+        print(dataSnapshot);
         var data = dataSnapshot.data() as Map<String, dynamic>;
-        data['uid'] = userId;
         data['Employee Name'] = selectedEmployee.value;
         fetchedData.value = data;
       } else {

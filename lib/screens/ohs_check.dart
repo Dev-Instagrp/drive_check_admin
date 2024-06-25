@@ -14,10 +14,13 @@ class OHSCheck extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final OHSCheckController controller = Get.put(OHSCheckController());
+    final TextEditingController siteIDController = TextEditingController();
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text('OHS Check'),
+        backgroundColor: Colors.white,
         elevation: 0,
       ),
       body: Padding(
@@ -71,6 +74,20 @@ class OHSCheck extends StatelessWidget {
                     },
                   ),
                   SizedBox(width: 20),
+                  Text('Site ID:'),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: TextFormField(
+                      controller: siteIDController,
+                      decoration: InputDecoration(
+                        labelText: "Enter Site ID",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15)
+                        )
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 20),
                   Text('Select Type:'),
                   SizedBox(width: 10),
                   Container(
@@ -87,9 +104,9 @@ class OHSCheck extends StatelessWidget {
                           underline: Container(),
                           items: [
                             'Activity Type',
-                            'preTestData',
-                            'onTestData',
-                            'postTestData'
+                            'PreSiteData',
+                            'OnSiteData',
+                            'PostSiteData'
                           ].map<DropdownMenuItem<String>>((String type) {
                             return DropdownMenuItem<String>(
                               value: type,
@@ -116,7 +133,8 @@ class OHSCheck extends StatelessWidget {
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  controller.fetchData();
+                  controller.siteId.value = siteIDController.text.trim()+"${controller.siteId.value}";
+                  controller.fetchData(siteIDController.text.trim());
                 },
                 child: Text('Fetch Data'),
               ),
